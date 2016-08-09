@@ -1,0 +1,199 @@
+fileFormatVersion: 2
+guid: 3cc8d175b5351439a8bbf25e50fa9afc
+timeCreated: 1470259599
+licenseType: Free
+TextureImporter:
+  fileIDToRecycleName:
+    21300000: Prototype-Sprites_0
+    21300002: Prototype-Sprites_1
+    21300004: Prototype-Sprites_2
+    21300006: Prototype-Sprites_3
+    21300008: Prototype-Sprites_4
+    21300010: Prototype-Sprites_5
+    21300012: Prototype-Sprites_6
+    21300014: Prototype-Sprites_7
+  serializedVersion: 2
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 1
+    linearTexture: 0
+    correctGamma: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 0
+  cubemapConvolution: 0
+  cubemapConvolutionSteps: 7
+  cubemapConvolutionExponent: 1.5
+  seamlessCubemap: 0
+  textureFormat: -3
+  maxTextureSize: 2048
+  textureSettings:
+    filterMode: -1
+    aniso: 16
+    mipBias: -1
+    wrapMode: 1
+  nPOTScale: 0
+  lightmap: 0
+  rGBM: 0
+  compressionQuality: 50
+  allowsAlphaSplitting: 0
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spritePixelsToUnits: 100
+  alphaIsTransparency: 1
+  textureType: 8
+  buildTargetSettings: []
+  spriteSheet:
+    sprites:
+    - name: Prototype-Sprites_0
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 922
+        width: 100
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -50, y: 50}
+        - {x: -50, y: -50}
+        - {x: 50, y: -50}
+        - {x: 50, y: 50}
+    - name: Prototype-Sprites_1
+      rect:
+        serializedVersion: 2
+        x: 103
+        y: 921
+        width: 102
+        height: 102
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -51, y: 51}
+        - {x: -51, y: -51}
+        - {x: 51, y: -51}
+        - {x: 51, y: 51}
+    - name: Prototype-Sprites_2
+      rect:
+        serializedVersion: 2
+        x: 206
+        y: 921
+        width: 100
+        height: 102
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -50, y: 51}
+        - {x: -50, y: -51}
+        - {x: 50, y: -51}
+        - {x: 50, y: 51}
+    - name: Prototype-Sprites_3
+      rect:
+        serializedVersion: 2
+        x: 308
+        y: 922
+        width: 100
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -50, y: 50}
+        - {x: -50, y: -50}
+        - {x: 50, y: -50}
+        - {x: 50, y: 50}
+    - name: Prototype-Sprites_4
+      rect:
+        serializedVersion: 2
+        x: 410
+        y: 922
+        width: 100
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -35, y: 50}
+        - {x: -49, y: 36}
+        - {x: -50, y: 29}
+        - {x: -50, y: -30}
+        - {x: -30, y: -50}
+        - {x: 27, y: -50}
+        - {x: 36, y: -48}
+        - {x: 50, y: -27}
+        - {x: 50, y: 44}
+        - {x: 29, y: 50}
+    - name: Prototype-Sprites_5
+      rect:
+        serializedVersion: 2
+        x: 512
+        y: 928
+        width: 100
+        height: 88
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -11, y: 44}
+        - {x: -50, y: -4}
+        - {x: -50, y: -44}
+        - {x: 50, y: -44}
+        - {x: 50, y: -36}
+        - {x: 21, y: 44}
+    - name: Prototype-Sprites_6
+      rect:
+        serializedVersion: 2
+        x: 613
+        y: 921
+        width: 204
+        height: 102
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -102, y: 51}
+        - {x: -102, y: -51}
+        - {x: 102, y: -51}
+        - {x: 102, y: 51}
+    - name: Prototype-Sprites_7
+      rect:
+        serializedVersion: 2
+        x: 818
+        y: 922
+        width: 100
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline:
+      - - {x: -35, y: 50}
+        - {x: -49, y: 36}
+        - {x: -50, y: 29}
+        - {x: -50, y: -30}
+        - {x: -30, y: -50}
+        - {x: 27, y: -50}
+        - {x: 36, y: -48}
+        - {x: 50, y: -27}
+        - {x: 50, y: 44}
+        - {x: 29, y: 50}
+    outline: []
+  spritePackingTag: 
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
