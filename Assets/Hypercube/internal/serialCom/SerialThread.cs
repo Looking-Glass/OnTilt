@@ -26,6 +26,8 @@ public class SerialThread
     private int delayBeforeReconnecting;
     private int maxUnreadMessages;
 
+    public bool readDataAsString = true;
+
     // Object from the .Net framework used to communicate with serial devices.
     private SerialPort serialPort;
 
@@ -47,6 +49,8 @@ public class SerialThread
     // invokes 'RequestStop()' this variable is set.
     private bool stopRequested = false;
 
+
+    byte[] bytes = new byte[32];  //the size here is the chunk read value from the serialPort
 
     /**************************************************************************
      * Methods intended to be invoked from the Unity thread.
@@ -230,16 +234,56 @@ public class SerialThread
             // If a line was read, and we have not filled our queue, enqueue
             // this line so it eventually reaches the Message Listener.
             // Otherwise, discard the line.
-            string inputMessage = serialPort.ReadLine();
-            if (inputMessage != null && inputQueue.Count < maxUnreadMessages)
+
+            if (readDataAsString)
             {
-                inputQueue.Enqueue(inputMessage);
+                string inputMessage = serialPort.ReadLine();
+                if (inputMessage != null && inputQueue.Count < maxUnreadMessages)
+                {
+                    inputQueue.Enqueue(inputMessage);
+                }
+                return;
             }
         }
         catch (TimeoutException)
         {
             // This is normal, not everytime we have a report from the serial device
+            return;
         }
+
+   //     if (readDataAsString)
+  //          return;
+
+        //READ DATA AS BYTES
+        int byteCount = 0;    
+        try
+        {
+            for (int i = 0; i < bytes.Length; i++)
+            {
+                    bytes[i] = (byte)serialPort.ReadByte();//port.ReadByte()：当串口缓冲区无数据可读时将触发"读取超时"异常 When no serial buffer readable, the data will trigger "Read timeout" exception                 
+                    byteCount++;
+            }        
+        }
+         catch (TimeoutException)
+        {
+            // This is normal, not everytime we have a report from the serial device
+             //but on a side note... what kind of nutcase designs an API that depends on itself crashing and for the dev to catch that exception to know that the api is 'done'.... wtf Ports.IO?!?!?
+        }
+        if (byteCount > 0)
+           // inputQueue.Enqueue(bytesToStr(bytes, byteCount));
+            inputQueue.Enqueue(System.Text.Encoding.Unicode.GetString(bytes));
+
     }
+
+    //from http://stackoverflow.com/questions/472906/how-to-get-a-consistent-byte-representation-of-strings-in-c-sharp-without-manual
+    //static string bytesToStr(byte[] bytes, int count)
+    //{
+    //    char[] chars = new char[count * sizeof(char)];
+    //    System.Buffer.BlockCopy(bytes, 0, chars, 0, count);
+    //    return new string(chars);
+    //}
+
+
 }
 #endif
+

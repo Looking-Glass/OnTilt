@@ -14,7 +14,6 @@ public class UIController : MonoBehaviour {
 	public Animator timePenaltyAnim;
 	public Animator plusScoreAnim;
 	public Animator comboAnim;
-	public Animator hypercubeAnim;
 
 	public Text scoreText;
 	public Text timeText;

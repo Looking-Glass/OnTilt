@@ -18,22 +18,6 @@ public class casterWindowPrefs : EditorWindow
         EditorWindow.GetWindow(typeof(casterWindowPrefs), false, "Volume Prefs");
     }
 
-    [MenuItem("Hypercube/Save Settings", false, 51)]
-    public static void saveCubeSettings()
-    {
-        hypercubeCamera cam = GameObject.FindObjectOfType<hypercubeCamera>();
-        if (cam)
-            cam.saveSettings();
-    }
-
-    [MenuItem("Hypercube/Load Settings", false, 52)]
-    public static void loadCubeSettings()
-    {
-        hypercubeCamera cam = GameObject.FindObjectOfType<hypercubeCamera>();
-        if (cam)
-            cam.loadSettings(true); //use force load
-    }
-
 
 
     void OnGUI()
@@ -87,7 +71,7 @@ public class casterWindowPrefs : EditorWindow
             EditorPrefs.SetInt("V_windowWidth", width);
             EditorPrefs.SetInt("V_windowHeight", height);
 
-            casterWindow.V_closeWindow();
+            hypercube.casterWindow.closeWindow();
         }
     }
 

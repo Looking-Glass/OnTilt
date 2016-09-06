@@ -6,7 +6,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{7CA597AC-799E-2D81-E8A0-0EA9A568434E}</ProjectGuid>
+    <ProjectGuid>{7848FD0A-FEF7-C3B3-C527-9EE0BAAE57EC}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -45,23 +45,27 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Hypercube\demo\demoRotator.cs" />
+     <Compile Include="Assets\Hypercube\demo\demo_input\inputTest.cs" />
      <Compile Include="Assets\Hypercube\demo\hypercubeAnimLauncher.cs" />
      <Compile Include="Assets\Hypercube\demo\hypercubeFpsControl.cs" />
-     <Compile Include="Assets\Hypercube\demo\hypercubeRotator.cs" />
      <Compile Include="Assets\Hypercube\demo\toggleWithKey.cs" />
-     <Compile Include="Assets\Hypercube\internal\canvasCalibrator.cs" />
+     <Compile Include="Assets\Hypercube\internal\calibrator.cs" />
+     <Compile Include="Assets\Hypercube\internal\castMesh.cs" />
      <Compile Include="Assets\Hypercube\internal\dataFileDict.cs" />
      <Compile Include="Assets\Hypercube\internal\hypercubeCamera.cs" />
-     <Compile Include="Assets\Hypercube\internal\hypercubeCanvas.cs" />
      <Compile Include="Assets\Hypercube\internal\hypercubePreview.cs" />
      <Compile Include="Assets\Hypercube\internal\materials\softOverlap.cs" />
      <Compile Include="Assets\Hypercube\internal\onKeyDown.cs" />
-     <Compile Include="Assets\Hypercube\internal\postEffectsBase.cs" />
-     <Compile Include="Assets\Hypercube\internal\screenOverlay.cs" />
      <Compile Include="Assets\Hypercube\internal\serialCom\SerialController.cs" />
      <Compile Include="Assets\Hypercube\internal\serialCom\SerialThread.cs" />
      <Compile Include="Assets\Hypercube\internal\serialCom\input.cs" />
+     <Compile Include="Assets\Hypercube\internal\serialCom\streamedInputManager.cs" />
+     <Compile Include="Assets\Hypercube\internal\serialCom\touch.cs" />
+     <Compile Include="Assets\Hypercube\internal\serialCom\touchScreenInputManager.cs" />
+     <Compile Include="Assets\Hypercube\internal\serialCom\touchscreenCalibrator\touchScreenMapper.cs" />
      <Compile Include="Assets\Hypercube\internal\serialCom\touchscreenTarget.cs" />
+     <Compile Include="Assets\Hypercube\internal\utils.cs" />
      <Compile Include="Assets\Scripts\AudioController.cs" />
      <Compile Include="Assets\Scripts\Bottom.cs" />
      <Compile Include="Assets\Scripts\DiskPulse.cs" />
@@ -81,7 +85,6 @@
      <None Include="Assets\Shaders\QBCutoutText.shader" />
      <None Include="Assets\Hypercube\internal\materials\softOverlap.shader" />
      <None Include="Assets\Hypercube\internal\materials\S_HypercubeUnlitCutout.shader" />
-     <None Include="Assets\Hypercube\internal\materials\std_blendModesOverlay.shader" />
      <None Include="Assets\Hypercube\internal\materials\S_HypercubeUnlit.shader" />
      <None Include="Assets\Hypercube\internal\materials\depthTester.shader" />
  <Reference Include="UnityEngine.UI">

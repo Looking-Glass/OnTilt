@@ -1,39 +1,15 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
-
-
-
 namespace hypercube
 {
-    
-    public enum touchEvent
-    {
-        TOUCH_INVALID = -1,
-        TOUCH_DOWN = 0,  //a brand new touch will contain this event;
-        TOUCH_UP,  //the last touch with this id will contain this event;
-        TOUCH_MOVE
-    }
 
-    public class touch
-    {
-        public int id;
-        public touchEvent e = touchEvent.TOUCH_INVALID;
-        public float posX; //0-1
-        public float posY; //0-1
-        public float diffX; //normalized relative movement this frame inside 0-1
-        public float diffY; //normalized relative movement this frame inside 0-1
-
-        public float distX; //this accounts for physical distance that the touch traveled so that an application can react to the physical size of the movement irrelevant to the size of the touch screen (ie the value will be the same for a movement of 1 mm/1 frame regardless of the touch screen's internal resolution or physical size)
-        public float distY;//this accounts for physical distance that the touch traveled so that an application can react to the physical size of the movement irrelevant to the size of the touch screen (ie the value will be the same for a movement of 1 mm/1 frame regardless of the touch screen's internal resolution or physical size)
-    }
 
     public class input : MonoBehaviour
     {
-
         //singleton pattern
-
         private static input instance = null;
         void Awake()
         {
@@ -42,46 +18,149 @@ namespace hypercube
                 Destroy(this.gameObject);
                 return;
             }
-            else
-            {
-                instance = this;
-            }
-            DontDestroyOnLoad(this.gameObject);
-        }
-        //end singleton
 
+            instance = this;
+            DontDestroyOnLoad(this.gameObject);
+            //end singleton
+
+            frontScreen = backScreen = null;
+
+            setupSerialComs();
+        }
+      
         public int baudRate = 115200;
         public int reconnectionDelay = 500;
         public int maxUnreadMessage = 5;
         public int maxAllowedFailure = 3;
+        public bool debug = false;
+
+        const int maxTouchesPerScreen = 9;
+
+        public static touchScreenInputManager frontScreen { get; private set; }  //the front touchscreen
+        public static touchScreenInputManager backScreen {get; private set; } //the back touchscreen
+
+        static HashSet<touchscreenTarget> eventTargets = new HashSet<touchscreenTarget>();
+        public static void _setTouchScreenTarget(touchscreenTarget t, bool addRemove)
+        {
+            if (addRemove)
+                eventTargets.Add(t);
+            else
+                eventTargets.Remove(t);
+        }
+
+        //use this instead of Start(),  that way we know we have our hardware settings info ready before we begin receiving data
+        public static void init(dataFileDict d)
+        {
+            if (!d)
+            {
+                Debug.LogError("Input was passed bad hardware dataFileDict!");
+                return;
+            }
+
+            if (!instance)
+                return;
 
 #if HYPERCUBE_INPUT
-        Dictionary<int, Touch> touches = new Dictionary<int, Touch>();
-        //TODO add leap hand input dictionary
-        public static input get() { return instance; }
+
+            if (frontScreen != null)
+                frontScreen.setTouchScreenDims(d);
+
+            if (backScreen != null)
+                frontScreen.setTouchScreenDims(d);
+#endif
+        }
+
+#if HYPERCUBE_INPUT
+
+        private bool _useFrontScreen = true;
+        public bool useFrontScreen { get { return _useFrontScreen; } set { if (frontScreen != null) frontScreen.serial.enabled = value; _useFrontScreen = value; } }
+        private bool _useBackScreen = false;
+        public bool useBackScreen { get { return _useBackScreen; } set { if (backScreen != null) backScreen.serial.enabled = value; _useBackScreen = value; } }
 
 
-        public SerialController touchScreenFront;
-
-        void Start()
+        public static void _processTouchScreenEvent(touch t)
         {
-            touchScreenFront = addSerialPortInput("COM5"); //TEMP - SHOULD NOT BE HARDCODED!
+            if (t == null)
+            {
+                Debug.LogWarning("Please report a bug in hypercube input. A null touch event was sent for processing.");
+                return;
+            }
+
+            if (t.state == touch.activationState.TOUCHDOWN)
+            {
+                    foreach(touchscreenTarget target in eventTargets)
+                        target.onTouchDown(t);
+            }
+            else if (t.state == touch.activationState.ACTIVE)
+            {
+                foreach (touchscreenTarget target in eventTargets)
+                    target.onTouchMoved(t);
+            }
+            else if (t.state == touch.activationState.TOUCHUP)
+            {
+                foreach (touchscreenTarget target in eventTargets)
+                    target.onTouchUp(t);
+            }               
+        }
+
+        void setupSerialComs()
+        {
+            string frontComName = "";
+            string[] names = getPortNames();
+
+            if (names.Length == 0)
+            {
+                Debug.LogWarning("Can't get input from Volume because no ports were detected! Confirm that Volume is connected via USB.");
+                return;
+            }
+
+            for (int i = 0; i < names.Length; i++)
+            {
+                if (names[i].StartsWith("COM") || names[i].Contains("usbmodem"))
+                {
+                    frontComName = names[i];
+                }
+            }
+
+            if (frontScreen == null && useFrontScreen)
+                frontScreen = new touchScreenInputManager("Front Touch Screen", addSerialPortInput(frontComName), true);
+
+            if (backScreen == null && useBackScreen)
+                backScreen = new touchScreenInputManager("Back Touch Screen", addSerialPortInput(frontComName), false);
         }
 
         void Update()
         {
-            processRawTouchscreenInput(touchScreenFront);
+            if (frontScreen != null && frontScreen.serial.enabled)
+                frontScreen.update(debug);
+            if (backScreen != null && backScreen.serial.enabled)
+                frontScreen.update(debug);
         }
 
-        void processRawTouchscreenInput(SerialController c)
+        static string[] getPortNames()
         {
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+            return System.IO.Ports.SerialPort.GetPortNames();
+#else
+            //this code is from http://answers.unity3d.com/questions/643078/serialportsgetportnames-error.html
+            int p = (int)Environment.OSVersion.Platform;
+            List<string> serial_ports = new List<string>();
 
-            string data = c.ReadSerialMessage();
-            if (data == null)
-                return;
+            // Are we on Unix?
+            if (p == 4 || p == 128 || p == 6)
+            {
+                string[] ttys = System.IO.Directory.GetFiles("/dev/", "tty.*");  //In the GetPortNames function, it looks for ports that begin with "/dev/ttyS" or "/dev/ttyUSB" . However, OS X ports begin with "/dev/tty.".
+                foreach (string dev in ttys)
+                {
+                    if (dev.StartsWith("/dev/tty."))
+                        serial_ports.Add(dev);
+                }
+            }
 
-            Debug.Log(data);
+            return serial_ports.ToArray();
+#endif
         }
+       
 
         SerialController addSerialPortInput(string comName)
         {
@@ -95,112 +174,74 @@ namespace hypercube
             return sc;
         }
 
+        static castMesh[] getCastMeshes()
+        {
+            List<castMesh> outcams = new List<castMesh>();
+
+            castMesh[] cameras = GameObject.FindObjectsOfType<castMesh>();
+            foreach (castMesh ca in cameras)
+            {
+                outcams.Add(ca);
+            }
+            return outcams.ToArray();
+        }
+
         public static bool isHardwareReady() //can the touchscreen hardware get/send commands?
         {
-            if (input.get().touchScreenFront && input.get().touchScreenFront.enabled && isFunctional)
-                return true;
+            if ( !instance)
+                return false;
+
+            if (frontScreen != null)
+            {
+                if (!frontScreen.serial.enabled)
+                    frontScreen.serial.readDataAsString = true; //we must wait for another init:done before we give the go-ahead to get raw data again.
+                else if (frontScreen.serial.readDataAsString == false)
+                    return true;
+            }
+           
             return false;
         }
 
-        public static void sendCommandToHardware(string cmd)
+  /*      public static bool sendCommandToHardware(string cmd)
         {
             if (isHardwareReady())
-                input.get().touchScreenFront.SendSerialMessage(cmd);
+            {
+                touchScreenFront.serial.SendSerialMessage(cmd + "\n\r");
+                return true;
+            }
             else
                 Debug.LogWarning("Can't send message to hardware, it is either not yet initialized, disconnected, or malfunctioning.");
+
+            return false;
         }
-
-
-
-        public virtual bool saveValueToHardware(string varName, string _val)
-        {
-            if (!isHardwareReady())
-                return false;
-
-            if (varName.Length == 0 || _val.Length == 0)
-                return false;
-
-            if (_val.Length > 8)
-                _val = _val.Substring(0, 8); //the hardware expects less than 8 characters in the string
-
-            touchScreenFront.SendSerialMessage("string," + validateVarName(varName) +","+ _val);
-            return true;
-        }
-        public virtual bool saveValueToHardware(string varName, int _val)
-        {
-            if (!isHardwareReady())
-                return false;
-
-            if (varName.Length == 0 )
-                return false;
-
-            touchScreenFront.SendSerialMessage("int," + validateVarName(varName) + "," + _val.ToString());
-            return true;
-        }
-        public virtual bool saveValueToHardware(string varName, short _val)
-        {
-            if (!isHardwareReady())
-                return false;
-
-            if (varName.Length == 0)
-                return false;
-
-            touchScreenFront.SendSerialMessage("char," + validateVarName(varName) + "," + _val);
-            return true;
-        }
-        public virtual bool saveValueToHardware(string varName, float _val)
-        {
-            if (!isHardwareReady())
-                return false;
-
-            if (varName.Length == 0)
-                return false;
-
-            touchScreenFront.SendSerialMessage("float," + validateVarName(varName) + "," + _val.ToString());
-            return true;
-        }
-
-        static string validateVarName(string varName)
-        {
-            if (varName.Length > 4)
-                return varName.Substring(0, 4);
-            return varName;
-        }
-
-
-        public const bool isFunctional = true; //proof we are compiled with HYPERCUBE_INPUT
-
-
+*/
+   
 #else //We use HYPERCUBE_INPUT because I have to choose between this odd warning below, or immediately throwing a compile error for new users who happen to have the wrong settings (IO.Ports is not included in .Net 2.0 Subset).  This solution is odd, but much better than immediately failing to compile.
     
-    public const bool isFunctional = false;
+        void setupSerialComs()
+        {
 
-    public static bool isHardwareReady() //can the touchscreen hardware get/send commands?
-    {
-        printWarning();
-        return false;
-    }
-    public static void sendCommandToHardware(string cmd)
-    {
-        printWarning();
-    }
+        }
 
-    public static input get() 
-    { 
-        printWarning();
-        return instance; 
-    }
+        public static bool isHardwareReady() //can the touchscreen hardware get/send commands?
+        {
+            return false;
+        }
+        public static void sendCommandToHardware(string cmd)
+        {
+            printWarning();
+        }
     
-    void Start () 
-    {
-        printWarning();
-        this.enabled = false;
-    }
+        void Start () 
+        {
+            printWarning();
+            this.enabled = false;
+        }
 
-    static void printWarning()
-    {
-        Debug.LogWarning("TO USE HYPERCUBE INPUT: \n1) Go To - Edit > Project Settings > Player    2) Set Api Compatability Level to '.Net 2.0'    3) Add HYPERCUBE_INPUT to Scripting Define Symbols (separate by semicolon, if there are others)");
-    }
+        static void printWarning()
+        {
+            Debug.LogWarning("TO USE HYPERCUBE INPUT: \n1) Go To - Edit > Project Settings > Player    2) Set Api Compatability Level to '.Net 2.0'    3) Add HYPERCUBE_INPUT to Scripting Define Symbols (separate by semicolon, if there are others)");
+        }
 #endif
     }
 
